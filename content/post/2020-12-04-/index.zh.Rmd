@@ -1,0 +1,49 @@
+---
+title: '饼图绘制'
+author: Robby
+date: '2020-12-04'
+slug: []
+categories:
+  - Visualization
+  - ggplot
+tags:
+  - Visualization
+  - pieplot
+  - ggplot
+hidden: no
+keywords: []
+description: ''
+---
+
+主要利用了`ggpubr`包的`ggpie`函数进行绘制, 并且使用`ggsci`包中的`jco`配色进行调色. 最后用`ggpubr`中的`ggarrange`将图片整合在一起. 示例图片的背景是2017年中国与全球能源消耗占比的对比. 为了使小标题下至, 采用`caption`参数进行绘制.
+
+```{r, message=FALSE}
+library(tidyverse)
+library(ggpubr)
+library(ggsci)
+energyStrucChina <- data.frame("type" = c("Coal", "Petroleum", "Hydropower",
+                                          "Natural gas", "Renewable energy",
+                                          "Nuclear energy"),
+                               "value" = c(61, 19, 8, 7, 3, 2),
+                               "label" = c("61%","19%","8%","7%","3%","2%"))
+energyStrucGlobal <- data.frame("type" = c("Coal", "Petroleum", "Hydropower",
+                                           "Natural gas", "Renewable energy",
+                                           "Nuclear energy"),
+                                "value" = c(28, 33, 7, 23, 4, 4),
+                                "label" = c("28%","33%","7%","23%","4%","4%"))
+
+ggenergyChina <- ggpie(energyStrucChina, 'value', color = "white",
+                       fill = 'type', palette = 'jco',
+                       label = "label", lab.pos = 'out', caption = "China") + 
+  guides(fill=guide_legend(title=NULL)) +
+  theme(plot.caption=element_text(size = 14, hjust = 0.5, vjust = 6))
+
+
+ggenergyGlobal <- ggpie(energyStrucGlobal, 'value', color = "white",
+                        fill = 'type', palette = 'jco',
+                        label = "label", lab.pos = 'out', caption = "Global") + 
+  guides(fill=guide_legend(title=NULL)) +
+  theme(plot.caption=element_text(size = 14, hjust = 0.5, vjust = 6))
+
+ggarrange(ggenergyChina,ggenergyGlobal, common.legend = TRUE)
+```

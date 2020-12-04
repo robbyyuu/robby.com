@@ -1,0 +1,49 @@
+---
+title: '饼图绘制'
+author: Robby
+date: '2020-12-04'
+slug: []
+categories:
+  - Visualization
+  - ggplot
+tags:
+  - Visualization
+  - pieplot
+  - ggplot
+hidden: no
+keywords: []
+description: ''
+---
+
+
+
+<p>主要利用了<code>ggpubr</code>包的<code>ggpie</code>函数进行绘制, 并且使用<code>ggsci</code>包中的<code>jco</code>配色进行调色. 最后用<code>ggpubr</code>中的<code>ggarrange</code>将图片整合在一起. 示例图片的背景是2017年中国与全球能源消耗占比的对比. 为了使小标题下至, 采用<code>caption</code>参数进行绘制.</p>
+<pre class="r"><code>library(tidyverse)
+library(ggpubr)
+library(ggsci)
+energyStrucChina &lt;- data.frame(&quot;type&quot; = c(&quot;Coal&quot;, &quot;Petroleum&quot;, &quot;Hydropower&quot;,
+                                          &quot;Natural gas&quot;, &quot;Renewable energy&quot;,
+                                          &quot;Nuclear energy&quot;),
+                               &quot;value&quot; = c(61, 19, 8, 7, 3, 2),
+                               &quot;label&quot; = c(&quot;61%&quot;,&quot;19%&quot;,&quot;8%&quot;,&quot;7%&quot;,&quot;3%&quot;,&quot;2%&quot;))
+energyStrucGlobal &lt;- data.frame(&quot;type&quot; = c(&quot;Coal&quot;, &quot;Petroleum&quot;, &quot;Hydropower&quot;,
+                                           &quot;Natural gas&quot;, &quot;Renewable energy&quot;,
+                                           &quot;Nuclear energy&quot;),
+                                &quot;value&quot; = c(28, 33, 7, 23, 4, 4),
+                                &quot;label&quot; = c(&quot;28%&quot;,&quot;33%&quot;,&quot;7%&quot;,&quot;23%&quot;,&quot;4%&quot;,&quot;4%&quot;))
+
+ggenergyChina &lt;- ggpie(energyStrucChina, &#39;value&#39;, color = &quot;white&quot;,
+                       fill = &#39;type&#39;, palette = &#39;jco&#39;,
+                       label = &quot;label&quot;, lab.pos = &#39;out&#39;, caption = &quot;China&quot;) + 
+  guides(fill=guide_legend(title=NULL)) +
+  theme(plot.caption=element_text(size = 14, hjust = 0.5, vjust = 6))
+
+
+ggenergyGlobal &lt;- ggpie(energyStrucGlobal, &#39;value&#39;, color = &quot;white&quot;,
+                        fill = &#39;type&#39;, palette = &#39;jco&#39;,
+                        label = &quot;label&quot;, lab.pos = &#39;out&#39;, caption = &quot;Global&quot;) + 
+  guides(fill=guide_legend(title=NULL)) +
+  theme(plot.caption=element_text(size = 14, hjust = 0.5, vjust = 6))
+
+ggarrange(ggenergyChina,ggenergyGlobal, common.legend = TRUE)</code></pre>
+<p><img src="/post/2020-12-04-/index.zh_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
