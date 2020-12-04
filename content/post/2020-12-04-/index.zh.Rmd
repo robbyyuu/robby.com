@@ -15,7 +15,7 @@ keywords: []
 description: ''
 ---
 
-主要利用了`ggpubr`包的`ggpie`函数进行绘制, 并且使用`ggsci`包中的`jco`配色进行调色. 最后用`ggpubr`中的`ggarrange`将图片整合在一起. 示例图片的背景是2017年中国与全球能源消耗占比的对比. 为了使小标题下至, 采用`caption`参数进行绘制.
+主要利用了`ggpubr`包的`ggpie`函数进行绘制, 并且使用`ggsci`包中的`jco`配色进行调色. 最后用`ggpubr`中的`ggarrange`将图片整合在一起. 示例图片的背景是2017年中国与全球能源消耗占比的对比. 为了使小标题下置, 采用`caption`参数进行绘制.
 
 ```{r, message=FALSE}
 library(tidyverse)
