@@ -86,12 +86,12 @@ energyGlobalExplode</code></pre>
 <p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-5-1.png" width="672" /></p>
 <p>超越网格:</p>
 <pre class="r"><code>layout &lt;- &quot;
-##BBBB
-AACCDD
-##CCDD
+#BB#
+A###
+#CDD
 &quot;
 energyChina + energyGlobal + energyChinaExplode + energyGlobalExplode +
-  plot_layout(design = layout)</code></pre>
+  plot_layout(design = layout, guides = &#39;collect&#39;)</code></pre>
 <p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
 <p>还可以直接用<code>area</code>来指定在网络中的具体位置:</p>
 <pre class="r"><code>layout &lt;- c(

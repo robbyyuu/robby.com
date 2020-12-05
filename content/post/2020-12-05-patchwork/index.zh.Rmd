@@ -99,12 +99,12 @@ energyChina + energyGlobal + energyChinaExplode + energyGlobalExplode +
 
 ```{r}
 layout <- "
-##BBBB
-AACCDD
-##CCDD
+#BB#
+A###
+#CDD
 "
 energyChina + energyGlobal + energyChinaExplode + energyGlobalExplode +
-  plot_layout(design = layout)
+  plot_layout(design = layout, guides = 'collect')
 ```
 
 还可以直接用`area`来指定在网络中的具体位置:
