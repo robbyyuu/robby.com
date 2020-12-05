@@ -94,6 +94,7 @@ energyGlobalExplode
 energyChina + energyGlobal + energyChinaExplode + energyGlobalExplode +
   plot_layout(widths = c(6,1))
 ```
+
 超越网格:
 
 ```{r}
