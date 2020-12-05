@@ -19,7 +19,7 @@ description: ''
 
 
 
-<p>昨天看到Y叔一篇<a href="https://guangchuangyu.github.io/2019/12/why-hate-ggpubr/">Blog</a>批评了<code>ggpubr</code>包, 其中一个问题就是拼图时候的<code>common.legend</code>逻辑有问题,直接将第一张有legend的图的legend拿出来作为所有图的commom legend, 这样就只能用于每张图legend都一致的情况. 而作者介绍了一个强大的拼图包<code>patchwork</code>, 提供了简单而直观的拼图操作<a href="#refer-anchor-1"><sup>1</a>. 接下来根据Y叔的介绍利用之前饼图的例子进行一些操作, 顺便尝试一下Y叔介绍的中空饼图及爆炸型的饼图<a href="#refer-anchor-2"><sup>2</a>.</p>
+<p>昨天看到Y叔一篇<a href="https://guangchuangyu.github.io/2019/12/why-hate-ggpubr/">Blog</a>批评了<code>ggpubr</code>包, 其中一个问题就是拼图时候的<code>common.legend</code>逻辑有问题,直接将第一张有legend的图的legend拿出来作为所有图的commom legend, 这样就只能用于每张图legend都一致的情况. 而作者介绍了一个强大的拼图包<code>patchwork</code>, 提供了简单而直观的拼图操作<a href="#refer-anchor-1"><sup>1</a>. 接下来根据Y叔的介绍, 利用之前饼图的例子进行一些操作, 顺便尝试一下Y叔介绍的中空饼图及爆炸型的饼图<a href="#refer-anchor-2"><sup>2</a>.</p>
 <pre class="r"><code>library(patchwork)
 library(tidyverse)
 library(ggsci)
