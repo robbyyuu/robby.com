@@ -1,0 +1,75 @@
+---
+title: 饼图绘制续-拼图包patchwork
+author: Robby
+date: '2020-12-05'
+slug: [explode-pieplot]
+categories:
+  - ggplot
+  - Visualization
+tags:
+  - ggplot
+  - pieplot
+  - Visualization
+  - patchwork
+  - 拼图
+hidden: no
+keywords: []
+description: ''
+---
+
+
+
+<p>昨天看到Y叔一篇<a href="https://guangchuangyu.github.io/2019/12/why-hate-ggpubr/">Blog</a>批评了<code>ggpubr</code>包, 其中一个问题就是拼图时候的<code>common.legend</code>逻辑有问题,直接将第一张有legend的图的legend拿出来作为所有图的commom legend, 这样就只能用于每张图legend都一致的情况. 而作者介绍了一个强大的拼图包<code>patchwork</code>, 提供了简单而直观的拼图操作<a href="https://guangchuangyu.github.io/2019/11/patchwork/"><sup>1</a>. 接下来根据Y叔的介绍利用之前饼图的例子进行一些操作, 顺便尝试一下Y叔介绍的中空饼图及爆炸型的饼图<a href="https://guangchuangyu.github.io/2018/05/explode-pieplot/"><sup>2</a>.</p>
+<pre class="r"><code>library(patchwork)
+library(tidyverse)
+library(ggsci)
+library(ggforce)
+pieplot &lt;- function(x, y, width = 1) {
+  # Arg: width - Split the sector
+  yy &lt;- cumsum(y)
+  d = data.frame(ymin = yy-y + (1 - width) / 2, 
+    ymax = yy - (1 - width) / 2, 
+    group=x)
+
+  ggplot(d) + scale_fill_jco() +
+    geom_rect(aes(xmin = 0, xmax = 1, ymin = ymin, ymax = ymax, fill = group)) + 
+    coord_polar(theta = &#39;y&#39;) + theme_void() + ylim(0, NA) 
+}
+
+energyStrucChina &lt;- data.frame(&quot;type&quot; = c(&quot;Coal&quot;, &quot;Petroleum&quot;, &quot;Hydropower&quot;,
+                                          &quot;Natural gas&quot;, &quot;Renewable energy&quot;,
+                                          &quot;Nuclear energy&quot;),
+                               &quot;value&quot; = c(61, 19, 8, 7, 3, 2),
+                               &quot;label&quot; = c(&quot;61%&quot;,&quot;19%&quot;,&quot;8%&quot;,&quot;7%&quot;,&quot;3%&quot;,&quot;2%&quot;))
+energyStrucGlobal &lt;- data.frame(&quot;type&quot; = c(&quot;Coal&quot;, &quot;Petroleum&quot;, &quot;Hydropower&quot;,
+                                           &quot;Natural gas&quot;, &quot;Renewable energy&quot;,
+                                           &quot;Nuclear energy&quot;),
+                                &quot;value&quot; = c(28, 33, 7, 23, 4, 4),
+                                &quot;label&quot; = c(&quot;28%&quot;,&quot;33%&quot;,&quot;7%&quot;,&quot;23%&quot;,&quot;4%&quot;,&quot;4%&quot;))</code></pre>
+<p>可以用<code>xlim(..., NA)</code>来绘制中空的饼图.</p>
+<pre class="r"><code>ggenergyChina &lt;- pieplot(energyStrucChina$type, energyStrucChina$value) +
+  xlim(-1, NA) +
+  guides(fill = guide_legend(title = NULL)) + labs(title = &quot;China&quot;)
+ggenergyChina</code></pre>
+<p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
+<pre class="r"><code>ggenergyGlobal &lt;- pieplot(energyStrucChina$type, energyStrucChina$value) +
+  xlim(-.5, NA) +
+  guides(fill = guide_legend(title = NULL)) + labs(title = &quot;Global&quot;)
+ggenergyGlobal</code></pre>
+<p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
+<p>可以用<code>ggforce</code>包来绘制爆炸型饼图, 注意在绘制过程中需要将label, 即<code>x</code>转化为<code>factor</code>, 否则绘制出的图会散乱.</p>
+<pre class="r"><code>pieplotExplode &lt;- function(x, y){
+  d = data.frame(x = factor(x, levels = x), y = y)
+  ggplot(d) + scale_fill_jco() +
+  geom_arc_bar(aes(x0 = 0, y0 = 0, r0 = 0.2, r = 1, 
+                  amount = y, fill = x, explode = .1), 
+  stat=&#39;pie&#39;)  + theme_void() + coord_fixed()
+}
+ggenergyChinaExplode &lt;- pieplotExplode(energyStrucChina$type,
+                                       energyStrucChina$value)
+ggenergyChinaExplode</code></pre>
+<p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre class="r"><code>ggenergyGlobalExplode &lt;- pieplotExplode(energyStrucGlobal$type,
+                                        energyStrucGlobal$value)
+ggenergyGlobalExplode</code></pre>
+<p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
