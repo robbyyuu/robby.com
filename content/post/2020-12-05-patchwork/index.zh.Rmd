@@ -141,6 +141,8 @@ energyChina + energyGlobal + energyChinaExplode + energyGlobalExplode +
   guide_area()) + plot_layout(guides = 'collect')
 ```
 
+以上就是一些饼图绘制以及拼图的相关操作, 绘制完这些图深感自己知识的匮乏, 在之前的绘图过程中都是看上去差不多就行, 包括以上的图片绘制也只是复制代码, 许多参数没有深入的理解, 并且对于所谓的*grammar*还知之甚少, 没有构建起一个绘图的逻辑体系, 希望在接下来的学习中补足这一方面的内容.
+
 # References
 <div id="refer-anchor-1"></div>
 - [1] [cowplot是旧爱, patchwork乃新欢](https://guangchuangyu.github.io/2019/11/patchwork/)
