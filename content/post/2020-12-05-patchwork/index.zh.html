@@ -19,7 +19,7 @@ description: ''
 
 
 
-<p>昨天看到Y叔一篇<a href="https://guangchuangyu.github.io/2019/12/why-hate-ggpubr/">Blog</a>批评了<code>ggpubr</code>包, 其中一个问题就是拼图时候的<code>common.legend</code>逻辑有问题,直接将第一张有legend的图的legend拿出来作为所有图的commom legend, 这样就只能用于每张图legend都一致的情况. 而作者介绍了一个强大的拼图包<code>patchwork</code>, 提供了简单而直观的拼图操作<a href="https://guangchuangyu.github.io/2019/11/patchwork/"><sup>1</a>. 接下来根据Y叔的介绍利用之前饼图的例子进行一些操作, 顺便尝试一下Y叔介绍的中空饼图及爆炸型的饼图<a href="https://guangchuangyu.github.io/2018/05/explode-pieplot/"><sup>2</a>.</p>
+<p>昨天看到Y叔一篇<a href="https://guangchuangyu.github.io/2019/12/why-hate-ggpubr/">Blog</a>批评了<code>ggpubr</code>包, 其中一个问题就是拼图时候的<code>common.legend</code>逻辑有问题,直接将第一张有legend的图的legend拿出来作为所有图的commom legend, 这样就只能用于每张图legend都一致的情况. 而作者介绍了一个强大的拼图包<code>patchwork</code>, 提供了简单而直观的拼图操作<a href="#refer-anchor-1"><sup>1</a>. 接下来根据Y叔的介绍利用之前饼图的例子进行一些操作, 顺便尝试一下Y叔介绍的中空饼图及爆炸型的饼图<a href="#refer-anchor-2"><sup>2</a>.</p>
 <pre class="r"><code>library(patchwork)
 library(tidyverse)
 library(ggsci)
@@ -47,15 +47,15 @@ energyStrucGlobal &lt;- data.frame(&quot;type&quot; = c(&quot;Coal&quot;, &quot;
                                 &quot;value&quot; = c(28, 33, 7, 23, 4, 4),
                                 &quot;label&quot; = c(&quot;28%&quot;,&quot;33%&quot;,&quot;7%&quot;,&quot;23%&quot;,&quot;4%&quot;,&quot;4%&quot;))</code></pre>
 <p>可以用<code>xlim(..., NA)</code>来绘制中空的饼图.</p>
-<pre class="r"><code>ggenergyChina &lt;- pieplot(energyStrucChina$type, energyStrucChina$value) +
+<pre class="r"><code>energyChina &lt;- pieplot(energyStrucChina$type, energyStrucChina$value) +
   xlim(-1, NA) +
   guides(fill = guide_legend(title = NULL)) + labs(title = &quot;China&quot;)
-ggenergyChina</code></pre>
+energyChina</code></pre>
 <p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-2-1.png" width="672" /></p>
-<pre class="r"><code>ggenergyGlobal &lt;- pieplot(energyStrucChina$type, energyStrucChina$value) +
+<pre class="r"><code>energyGlobal &lt;- pieplot(energyStrucGlobal$type, energyStrucGlobal$value) +
   xlim(-.5, NA) +
   guides(fill = guide_legend(title = NULL)) + labs(title = &quot;Global&quot;)
-ggenergyGlobal</code></pre>
+energyGlobal</code></pre>
 <p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-2-2.png" width="672" /></p>
 <p>可以用<code>ggforce</code>包来绘制爆炸型饼图, 注意在绘制过程中需要将label, 即<code>x</code>转化为<code>factor</code>, 否则绘制出的图会散乱.</p>
 <pre class="r"><code>pieplotExplode &lt;- function(x, y){
@@ -65,11 +65,70 @@ ggenergyGlobal</code></pre>
                   amount = y, fill = x, explode = .1), 
   stat=&#39;pie&#39;)  + theme_void() + coord_fixed()
 }
-ggenergyChinaExplode &lt;- pieplotExplode(energyStrucChina$type,
-                                       energyStrucChina$value)
-ggenergyChinaExplode</code></pre>
+energyChinaExplode &lt;- pieplotExplode(energyStrucChina$type,
+                                       energyStrucChina$value)+
+                        guides(fill = guide_legend(title = NULL))
+energyChinaExplode</code></pre>
 <p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
-<pre class="r"><code>ggenergyGlobalExplode &lt;- pieplotExplode(energyStrucGlobal$type,
-                                        energyStrucGlobal$value)
-ggenergyGlobalExplode</code></pre>
+<pre class="r"><code>energyGlobalExplode &lt;- pieplotExplode(energyStrucGlobal$type,
+                                        energyStrucGlobal$value)+
+                        guides(fill = guide_legend(title = NULL))
+energyGlobalExplode</code></pre>
 <p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+<div id="拼图" class="section level1">
+<h1>拼图</h1>
+<p>接下来开始拼图操作, <code>patchwork</code>很直观的一点就是用<code>/</code>按row来拼, 用<code>|</code>按column来拼, 用<code>()</code>将图组合.</p>
+<pre class="r"><code>(energyChina / energyGlobal) | (energyChinaExplode / energyGlobalExplode)</code></pre>
+<p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<p>要进一步控制细节则设置<code>plot_layout</code>:</p>
+<pre class="r"><code>energyChina + energyGlobal + energyChinaExplode + energyGlobalExplode +
+  plot_layout(widths = c(6,1))</code></pre>
+<p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+超越网格:</p>
+<pre class="r"><code>layout &lt;- &quot;
+##BBBB
+AACCDD
+##CCDD
+&quot;
+energyChina + energyGlobal + energyChinaExplode + energyGlobalExplode +
+  plot_layout(design = layout)</code></pre>
+<p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-6-1.png" width="672" /></p>
+<p>还可以直接用<code>area</code>来指定在网络中的具体位置:</p>
+<pre class="r"><code>layout &lt;- c(
+  area(t = 4, l = 1, b = 5, r = 4),
+  area(t = 1, l = 3, b = 3, r = 5)
+)
+energyChina + energyGlobal +
+  plot_layout(design = layout)</code></pre>
+<p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-7-1.png" width="672" /></p>
+<div id="拼图专用空白" class="section level2">
+<h2>拼图专用空白</h2>
+<p>用<code>plot_spacer()</code>来填空白:</p>
+<pre class="r"><code>energyChina + plot_spacer() + plot_spacer() + energyGlobal</code></pre>
+<p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-8-1.png" width="672" /></p>
+</div>
+<div id="控制legend" class="section level2">
+<h2>控制legend</h2>
+<p>我们拼图时, 显然是想将legend整理在一起, 通过指定<code>guides='collect'</code>可以实现这一目标:</p>
+<pre class="r"><code>energyChina + energyGlobal + energyChinaExplode + energyGlobalExplode +
+  plot_layout(guides = &#39;collect&#39;)</code></pre>
+<p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-9-1.png" width="672" /></p>
+<p>如果想要图例单独放在一个格子, 用<code>guide_area()</code>:</p>
+<pre class="r"><code>((energyChina / energyGlobal) | (energyChinaExplode / energyGlobalExplode) |
+  guide_area()) + plot_layout(guides = &#39;collect&#39;)</code></pre>
+<p><img src="/post/2020-12-05-patchwork/index.zh_files/figure-html/unnamed-chunk-10-1.png" width="672" /></p>
+</div>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<div id="refer-anchor-1">
+
+</div>
+<ul>
+<li>[1] <a href="https://guangchuangyu.github.io/2019/11/patchwork/">cowplot是旧爱, patchwork乃新欢</a>
+<div id="refer-anchor-2">
+
+</div></li>
+<li>[2] <a href="https://guangchuangyu.github.io/2018/05/explode-pieplot/">爆炸型的饼图</a></li>
+</ul>
+</div>

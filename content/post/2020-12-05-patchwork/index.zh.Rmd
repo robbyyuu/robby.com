@@ -17,7 +17,7 @@ keywords: []
 description: ''
 ---
 
-昨天看到Y叔一篇[Blog](https://guangchuangyu.github.io/2019/12/why-hate-ggpubr/)批评了`ggpubr`包, 其中一个问题就是拼图时候的`common.legend`逻辑有问题,直接将第一张有legend的图的legend拿出来作为所有图的commom legend, 这样就只能用于每张图legend都一致的情况. 而作者介绍了一个强大的拼图包`patchwork`, 提供了简单而直观的拼图操作[<sup>1](https://guangchuangyu.github.io/2019/11/patchwork/). 接下来根据Y叔的介绍利用之前饼图的例子进行一些操作, 顺便尝试一下Y叔介绍的中空饼图及爆炸型的饼图[<sup>2](https://guangchuangyu.github.io/2018/05/explode-pieplot/).
+昨天看到Y叔一篇[Blog](https://guangchuangyu.github.io/2019/12/why-hate-ggpubr/)批评了`ggpubr`包, 其中一个问题就是拼图时候的`common.legend`逻辑有问题,直接将第一张有legend的图的legend拿出来作为所有图的commom legend, 这样就只能用于每张图legend都一致的情况. 而作者介绍了一个强大的拼图包`patchwork`, 提供了简单而直观的拼图操作[<sup>1](#refer-anchor-1). 接下来根据Y叔的介绍利用之前饼图的例子进行一些操作, 顺便尝试一下Y叔介绍的中空饼图及爆炸型的饼图[<sup>2](#refer-anchor-2).
 
 ```{r, message = FALSE}
 library(patchwork)
@@ -50,15 +50,15 @@ energyStrucGlobal <- data.frame("type" = c("Coal", "Petroleum", "Hydropower",
 
 可以用`xlim(..., NA)`来绘制中空的饼图.
 ```{r}
-ggenergyChina <- pieplot(energyStrucChina$type, energyStrucChina$value) +
+energyChina <- pieplot(energyStrucChina$type, energyStrucChina$value) +
   xlim(-1, NA) +
   guides(fill = guide_legend(title = NULL)) + labs(title = "China")
-ggenergyChina
+energyChina
 
-ggenergyGlobal <- pieplot(energyStrucChina$type, energyStrucChina$value) +
+energyGlobal <- pieplot(energyStrucGlobal$type, energyStrucGlobal$value) +
   xlim(-.5, NA) +
   guides(fill = guide_legend(title = NULL)) + labs(title = "Global")
-ggenergyGlobal
+energyGlobal
 ```
 
 可以用`ggforce`包来绘制爆炸型饼图, 注意在绘制过程中需要将label, 即`x`转化为`factor`, 否则绘制出的图会散乱.
@@ -70,11 +70,79 @@ pieplotExplode <- function(x, y){
                   amount = y, fill = x, explode = .1), 
   stat='pie')  + theme_void() + coord_fixed()
 }
-ggenergyChinaExplode <- pieplotExplode(energyStrucChina$type,
-                                       energyStrucChina$value)
-ggenergyChinaExplode
-ggenergyGlobalExplode <- pieplotExplode(energyStrucGlobal$type,
-                                        energyStrucGlobal$value)
-ggenergyGlobalExplode
+energyChinaExplode <- pieplotExplode(energyStrucChina$type,
+                                       energyStrucChina$value)+
+                        guides(fill = guide_legend(title = NULL))
+energyChinaExplode
+energyGlobalExplode <- pieplotExplode(energyStrucGlobal$type,
+                                        energyStrucGlobal$value)+
+                        guides(fill = guide_legend(title = NULL))
+energyGlobalExplode
 ```
 
+# 拼图
+
+接下来开始拼图操作, `patchwork`很直观的一点就是用`/`按row来拼, 用`|`按column来拼, 用`()`将图组合.
+
+```{r}
+(energyChina / energyGlobal) | (energyChinaExplode / energyGlobalExplode)
+```
+
+要进一步控制细节则设置`plot_layout`:
+
+```{r}
+energyChina + energyGlobal + energyChinaExplode + energyGlobalExplode +
+  plot_layout(widths = c(6,1))
+```
+超越网格:
+
+```{r}
+layout <- "
+##BBBB
+AACCDD
+##CCDD
+"
+energyChina + energyGlobal + energyChinaExplode + energyGlobalExplode +
+  plot_layout(design = layout)
+```
+
+还可以直接用`area`来指定在网络中的具体位置:
+
+```{r}
+layout <- c(
+  area(t = 4, l = 1, b = 5, r = 4),
+  area(t = 1, l = 3, b = 3, r = 5)
+)
+energyChina + energyGlobal +
+  plot_layout(design = layout)
+```
+
+## 拼图专用空白
+
+用`plot_spacer()`来填空白:
+
+```{r}
+energyChina + plot_spacer() + plot_spacer() + energyGlobal
+```
+
+## 控制legend
+
+我们拼图时, 显然是想将legend整理在一起, 通过指定`guides='collect'`可以实现这一目标:
+
+```{r}
+energyChina + energyGlobal + energyChinaExplode + energyGlobalExplode +
+  plot_layout(guides = 'collect')
+```
+
+如果想要图例单独放在一个格子, 用`guide_area()`:
+
+```{r}
+((energyChina / energyGlobal) | (energyChinaExplode / energyGlobalExplode) |
+  guide_area()) + plot_layout(guides = 'collect')
+```
+
+# References
+<div id="refer-anchor-1"></div>
+- [1] [cowplot是旧爱, patchwork乃新欢](https://guangchuangyu.github.io/2019/11/patchwork/)
+<div id="refer-anchor-2"></div>
+- [2] [爆炸型的饼图](https://guangchuangyu.github.io/2018/05/explode-pieplot/)
