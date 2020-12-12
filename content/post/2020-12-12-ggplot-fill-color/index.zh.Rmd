@@ -1,0 +1,70 @@
+---
+title: ggplot删除图例title——fill与color的区别
+author: Robby
+date: '2020-12-12'
+slug: []
+categories:
+  - ggplot
+  - Visualization
+tags:
+  - ggplot
+  - Visualization
+  - legend
+hidden: no
+keywords: []
+description: ''
+---
+
+今天作图时遇到的一个问题就是想将`legend`的标题删除, 之前的饼图绘制中利用`guides(fill = guide_legend(title = NULL))`或者`labs(fill = NULL)`就可以做到这一点:
+
+```{r, message = FALSE, fig.width = 10,fig.height = 2.7}
+library(patchwork)
+library(tidyverse)
+library(ggsci)
+library(ggforce)
+pieplot <- function(x, y, width = 1) {
+  # Arg: width - Split the sector
+  yy <- cumsum(y)
+  d = data.frame(ymin = yy-y + (1 - width) / 2, 
+  	ymax = yy - (1 - width) / 2, 
+  	group=x)
+
+  ggplot(d) + scale_fill_jco() +
+  	geom_rect(aes(xmin = 0, xmax = 1, ymin = ymin, ymax = ymax, fill = group)) + 
+  	coord_polar(theta = 'y') + theme_void() + ylim(0, NA) 
+}
+
+energyStrucChina <- data.frame("type" = c("Coal", "Petroleum", "Hydropower",
+                                          "Natural gas", "Renewable energy",
+                                          "Nuclear energy"),
+                               "value" = c(61, 19, 8, 7, 3, 2),
+                               "label" = c("61%","19%","8%","7%","3%","2%"))
+
+energyChina <- pieplot(energyStrucChina$type, energyStrucChina$value) +
+  xlim(-1, NA)
+energyChina | (energyChina + labs(fill = NULL)) |
+(energyChina + guides(fill = guide_legend(title = NULL)))
+```
+
+但是今天绘制曲线的时候将上述代码直接复制, 发现不起作用, 究其原因是因为曲线对应的是`color`而饼图, 柱状图这种填充型的图才是对应`fill`, 将相关命令改成`color`就可以解决. 顺便提一下用`theme(legend.position = c(.9, .1))`可以调整图例位置, `legend.background`调整图例背景, `legend.text`调整图例字体大小颜色等等, 用`xlab(NULL)`及`ylab(NULL)`删除两轴标签.
+```{r, fig.height = 10, fig.width = 5}
+x <- rnorm(100)
+y <- rnorm(100)
+data.frame(x, y, index = 1:100) %>% pivot_longer(cols = c("x", "y")) -> data
+ex <- ggplot(data = data, mapping = aes(x = index, y = value, color = name)) +
+  geom_line() + scale_color_jco() + theme_bw() + xlab(NULL) + ylab(NULL) +
+  theme(legend.position = c(.935,0.15), legend.text = element_text(size = 8),
+        legend.background = element_rect(fill="white", size=0.5,
+                                         linetype="solid", color = "black"))
+ex / (ex + labs(fill = NULL)) / (ex + labs(color = NULL))
+```
+
+另一点就是常常在`legend`中需要用数学公式, 可以使用`expression`, 另外`latex2exp`包的`TeX`函数提供了latex语法到`expression`语法的转换, 在`sclae_color_*`中用`label`来替换图例文字.
+```{r, fig.width = 5}
+library(latex2exp)
+lab1 <- TeX("N^2")
+lab1
+ex + scale_color_jco(label = c(lab1$`N^2`,"N"))
+```
+
+

@@ -1,0 +1,69 @@
+---
+title: ggplot删除图例title——fill与color的区别
+author: Robby
+date: '2020-12-12'
+slug: []
+categories:
+  - ggplot
+  - Visualization
+tags:
+  - ggplot
+  - Visualization
+  - legend
+hidden: no
+keywords: []
+description: ''
+---
+
+
+
+<p>今天作图时遇到的一个问题就是想将<code>legend</code>的标题删除, 之前的饼图绘制中利用<code>guides(fill = guide_legend(title = NULL))</code>或者<code>labs(fill = NULL)</code>就可以做到这一点:</p>
+<pre class="r"><code>library(patchwork)
+library(tidyverse)
+library(ggsci)
+library(ggforce)
+pieplot &lt;- function(x, y, width = 1) {
+  # Arg: width - Split the sector
+  yy &lt;- cumsum(y)
+  d = data.frame(ymin = yy-y + (1 - width) / 2, 
+    ymax = yy - (1 - width) / 2, 
+    group=x)
+
+  ggplot(d) + scale_fill_jco() +
+    geom_rect(aes(xmin = 0, xmax = 1, ymin = ymin, ymax = ymax, fill = group)) + 
+    coord_polar(theta = &#39;y&#39;) + theme_void() + ylim(0, NA) 
+}
+
+energyStrucChina &lt;- data.frame(&quot;type&quot; = c(&quot;Coal&quot;, &quot;Petroleum&quot;, &quot;Hydropower&quot;,
+                                          &quot;Natural gas&quot;, &quot;Renewable energy&quot;,
+                                          &quot;Nuclear energy&quot;),
+                               &quot;value&quot; = c(61, 19, 8, 7, 3, 2),
+                               &quot;label&quot; = c(&quot;61%&quot;,&quot;19%&quot;,&quot;8%&quot;,&quot;7%&quot;,&quot;3%&quot;,&quot;2%&quot;))
+
+energyChina &lt;- pieplot(energyStrucChina$type, energyStrucChina$value) +
+  xlim(-1, NA)
+energyChina | (energyChina + labs(fill = NULL)) |
+(energyChina + guides(fill = guide_legend(title = NULL)))</code></pre>
+<p><img src="/post/2020-12-12-ggplot-fill-color/index.zh_files/figure-html/unnamed-chunk-1-1.png" width="960" /></p>
+<p>但是今天绘制曲线的时候将上述代码直接复制, 发现不起作用, 究其原因是因为曲线对应的是<code>color</code>而饼图, 柱状图这种填充型的图才是对应<code>fill</code>, 将相关命令改成<code>color</code>就可以解决. 顺便提一下用<code>theme(legend.position = c(.9, .1))</code>可以调整图例位置, <code>legend.background</code>调整图例背景, <code>legend.text</code>调整图例字体大小颜色等等, 用<code>xlab(NULL)</code>及<code>ylab(NULL)</code>删除两轴标签.</p>
+<pre class="r"><code>x &lt;- rnorm(100)
+y &lt;- rnorm(100)
+data.frame(x, y, index = 1:100) %&gt;% pivot_longer(cols = c(&quot;x&quot;, &quot;y&quot;)) -&gt; data
+ex &lt;- ggplot(data = data, mapping = aes(x = index, y = value, color = name)) +
+  geom_line() + scale_color_jco() + theme_bw() + xlab(NULL) + ylab(NULL) +
+  theme(legend.position = c(.935,0.15), legend.text = element_text(size = 8),
+        legend.background = element_rect(fill=&quot;white&quot;, size=0.5,
+                                         linetype=&quot;solid&quot;, color = &quot;black&quot;))
+ex / (ex + labs(fill = NULL)) / (ex + labs(color = NULL))</code></pre>
+<p><img src="/post/2020-12-12-ggplot-fill-color/index.zh_files/figure-html/unnamed-chunk-2-1.png" width="480" /></p>
+<p>另一点就是常常在<code>legend</code>中需要用数学公式, 可以使用<code>expression</code>, 另外<code>latex2exp</code>包的<code>TeX</code>函数提供了latex语法到<code>expression</code>语法的转换, 在<code>sclae_color_*</code>中用<code>label</code>来替换图例文字.</p>
+<pre class="r"><code>library(latex2exp)
+lab1 &lt;- TeX(&quot;N^2&quot;)
+lab1</code></pre>
+<pre><code>## expression(`N^2` = paste(&quot;N&quot;, phantom()^{
+##     paste(&quot;2&quot;)
+## }, &quot;&quot;))</code></pre>
+<pre class="r"><code>ex + scale_color_jco(label = c(lab1$`N^2`,&quot;N&quot;))</code></pre>
+<pre><code>## Scale for &#39;colour&#39; is already present. Adding another scale for &#39;colour&#39;,
+## which will replace the existing scale.</code></pre>
+<p><img src="/post/2020-12-12-ggplot-fill-color/index.zh_files/figure-html/unnamed-chunk-3-1.png" width="480" /></p>
