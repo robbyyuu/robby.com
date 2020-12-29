@@ -1,0 +1,78 @@
+---
+title: 时间序列的谱
+author: Robby
+date: '2020-12-29'
+slug: spectrum
+categories:
+  - timeseries
+tags:
+  - timeseries
+  - spectrum
+hidden: no
+keywords: []
+description: ''
+---
+以下内容摘自[A Very Short Course on Time Series Analysis](https://bookdown.org/rdpeng/timeseriesbook/frequency-and-time-scale-analysis.html).
+
+## Idea
+Critical to the idea of time scale analysis is *Parseval’s theorem* which says, roughly, that the total variation in a time series is equal to the sum of the variation across all time scales.
+
+It might be more useful to not think of this as a model, but rather as a transformation of the data from $n$ observed data points into a series of *correlations* ($a_p$ and $b_p$) with respect to sines and cosines of different frequencies.
+
+Standard regression modeling theory tells us that the estimates of the $a_{p}$ and $b_{p}$ coefficients in the model
+are
+
+$$
+\begin{aligned}
+\hat{a}_{0} &=\bar{y} \\
+\hat{a}_{p} &=\frac{\sum_{t=1}^{n}\left(y_{t}-\bar{y}\right) \cos (2 \pi t p / n)}{\sum_{t=1}^{n} \cos (2 \pi t p / n)^{2}} \\
+&=\frac{\sum_{t=1}^{n}\left(y_{t}-\bar{y}\right) \cos (2 \pi t p / n)}{n / 2} \\
+&=\frac{2}{n} \sum_{t=1}^{n}\left(y_{t}-\bar{y}\right) \cos (2 \pi t p / n) \\
+&=\frac{2}{n} \sum_{t=1}^{n} y_{t} \cos (2 \pi t p / n) \\
+\hat{b}_{p} &=\frac{2}{n} \sum_{t=1}^{n} y_{t} \sin (2 \pi t p / n).
+\end{aligned}
+$$
+
+Each of the $\hat{a}_{p} \mathrm{~s}$ and $\hat{b}_{p} \mathrm{~s}$ are proportional to the covariance between the data $y_{t}$ and sines and cosines containing $p$ cycles per $n$ data points. We will note that the $\hat{a}_{p} \mathrm{~s}$ and $\hat{a}_{p} \mathrm{~s}$ are also proportional to the
+Fourier transform coefficients associated with frequency $p$, although they are generally not computed in
+this manner.
+
+对数据关于不同频率的sin和cos做回归, 得到系数(不同系数对比刻画了数据与不同频率sin及cos的相关性强弱), 从上述推导中可以看出回归系数就是相应的傅里叶系数.
+
+## Partitioning the Variation
+We can take an analysis of variance approach to the main model for $y_{t}$ above and decompose the total
+variation in $y_{t}$ as $\sum_{t}\left(y_{t}-\bar{y}\right)^{2}$ into a residual sum of squares and the variation attributable to the various
+frequencies.
+
+$$
+\begin{aligned}
+\sum_{t=0}^{n-1}\left(y_{t}-\bar{y}\right)^{2} &=\sum_{t=0}^{n-1}\left[\sum_{p=1}^{n / 2} a_{p} \cos (2 \pi p t / n)+b_{p} \sin (2 \pi p t / n)\right]^{2} \\
+&=\sum_{t=0}^{n-1} \sum_{p=1}^{n / 2}\left(a_{p} \cos (2 \pi p t / n)+b_{p} \sin (2 \pi p t / n)\right)^{2}
+\end{aligned}
+$$
+
+从方差分解的角度看时间序列的谱的含义, 对上式交换求和顺序(注意sin及cos的正交性在恒等变换中的作用),
+
+
+\begin{equation}
+\sum_{t=0}^{n-1}\left(y_{t}-\bar{y}\right)^{2}=\sum_{p=1}^{n / 2-1} \frac{n}{2}\left(a_{p}^{2}+b_{p}^{2}\right)+n a_{n / 2}^{2}
+\end{equation}
+
+
+For $p \neq n / 2$ we can write $R_{p}^{2}=a_{p}^{2}+b_{p}^{2}$. Then, if we divide through by $n$ we can then write
+
+\begin{equation}
+  \frac{1}{n}\sum_{t=0}^{n-1}\left(y_{t}-\bar{y}\right)^{2}=\sum_{p=1}^{n / 2-1} R_{p}^{2} / 2+a_{n / 2}^{2}
+\end{equation}
+
+If we interpret $R_{p}^{2} / 2$ is the amount of "energy" associated with variation at frequency $p$, then the above equation states that the total variance of $y_{t}$ is equal to the sum of the "energies" $R_{p}^{2} / 2$ associated with each frequency of variation. This is Parseval's theorem.
+
+## Periodogram
+One problem with the raw periodogram is that it is not a consistent estimator of the the energy
+associated with a given frequency. In other words, the variability of the estimate of $I\left(\omega_{p}\right)$ does not go to
+zero as the length of the time series $n \rightarrow \infty .$ Intuitively, this is clear because as $n \rightarrow \infty,$ we may have
+more data points but we also have more frequency coeffients to estimate! So the number of parameters
+also increases with $n$. Therefore, the plot of $I\left(\omega_{p}\right)$ will get denser as $n \rightarrow \infty$ becase there are more
+frequencies $\omega_{p},$ but it will not become less noisy.
+
+However, it turns out there is a simple way to produce a consistent estimate of $I\left(\omega_{p}\right)$, and that is to smooth the estimate by averaging values of $\hat{I}\left(\omega_{p}\right)$ with values at neighboring frequencies. 
