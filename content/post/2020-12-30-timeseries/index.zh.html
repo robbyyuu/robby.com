@@ -1,0 +1,53 @@
+---
+title: 时间序列期末复习
+author: Robby
+date: '2020-12-30'
+slug: timeseries
+categories:
+  - timeseries
+tags:
+  - timeseries
+hidden: no
+keywords: []
+description: ''
+---
+
+
+
+<p>以下内容基于Time Series Analysis and Its Applications-With R Examples.</p>
+<div id="characteristics-of-time-series" class="section level2">
+<h2>Characteristics of Time Series</h2>
+<ul>
+<li><p>时间序列的一大特征就是相依关系, 这区别于数理统计中的独立同分布的假设, 因此许多传统的方法不能直接使用.</p></li>
+<li><p>时间序列主要有分析方向——时域(time domain)以及频域 (frequency domain). 时域主要关心滞后关系 (lagged relationships), 而频域则关心周期性 (cycles).</p></li>
+<li><p>关于经济数据中return(<span class="math inline">\(r_{t}=(x_{t}-x_{t-1}) / x_{t-1}\)</span>)的近似:</p></li>
+</ul>
+<p><span class="math display">\[\begin{equation}
+1+r_{t}=x_{t} / x_{t-1} \text { and } \log \left(1+r_{t}\right)=\log \left(x_{t} / x_{t-1}\right)=\log \left(x_{t}\right)-\log \left(x_{t-1}\right) \approx r_{t}.
+\end{equation}\]</span></p>
+<ul>
+<li><p>时间序列所展示的性质与采样点的密集程度也密切相关.</p></li>
+<li><p>注意白噪声的定义只是不相关.</p></li>
+<li><p>信噪比signal-to-noise ratio (SNR): 振幅/噪声标准差.</p></li>
+<li><p>If the random variables</p></li>
+</ul>
+<p><span class="math display">\[\begin{equation}
+U=\sum_{j=1}^{m} a_{j} X_{j} \quad \text { and } \quad V=\sum_{k=1}^{r} b_{k} Y_{k}
+\end{equation}\]</span></p>
+<p>are linear combinations of ( finite variance) random variables <span class="math inline">\(\left\{X_{j}\right\}\)</span> and <span class="math inline">\(\left\{Y_{k}\right\},\)</span> respectively, then</p>
+<p><span class="math display">\[\begin{equation}
+\operatorname{cov}(U, V)=\sum_{j=1}^{m} \sum_{k=1}^{r} a_{j} b_{k} \operatorname{cov}\left(X_{j}, Y_{k}\right).
+\end{equation}\]</span></p>
+<p>Furthermore, <span class="math inline">\(\operatorname{var}(U)=\operatorname{cov}(U, U)\)</span>.</p>
+<ul>
+<li><p>严平稳并不要求二阶矩存在, 只有当二阶矩存在时严平稳才能得到弱平稳.</p></li>
+<li><p>A linear process, <span class="math inline">\(x_{t},\)</span> is defined to be a linear combination of white noise variates <span class="math inline">\(w_{t},\)</span> and is given by</p></li>
+</ul>
+<p><span class="math display">\[\begin{equation}
+x_{t}=\mu+\sum_{j=-\infty}^{\infty} \psi_{j} w_{t-j}, \quad \sum_{j=-\infty}^{\infty}\left|\psi_{j}\right|&lt;\infty
+\end{equation}\]</span></p>
+<p>For the linear process (see Problem 1.11), we may show that the autocovariance function is given by</p>
+<p><span class="math display">\[\begin{equation}
+\gamma_{x}(h)=\sigma_{w}^{2} \sum_{j=-\infty}^{\infty} \psi_{j+h} \psi_{j}
+\end{equation}\]</span></p>
+</div>
