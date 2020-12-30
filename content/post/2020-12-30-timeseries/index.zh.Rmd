@@ -1,0 +1,101 @@
+---
+title: 时间序列期末复习
+author: Robby
+date: '2020-12-30'
+slug: timeseries
+categories:
+  - timeseries
+tags:
+  - timeseries
+hidden: no
+keywords: []
+description: ''
+---
+以下内容基于Time Series Analysis and Its Applications-With R Examples.
+
+## Characteristics of Time Series
+
+- 时间序列的一大特征就是相依关系, 这区别于数理统计中的独立同分布的假设, 因此许多传统的方法不能直接使用.
+
+- 时间序列主要有分析方向——时域(time domain)以及频域 (frequency domain). 时域主要关心滞后关系 (lagged relationships), 而频域则关心周期性 (cycles).
+
+- 关于经济数据中return($r_{t}=(x_{t}-x_{t-1}) / x_{t-1}$)的近似:
+
+\begin{equation}
+1+r_{t}=x_{t} / x_{t-1} \text { and } \log \left(1+r_{t}\right)=\log \left(x_{t} / x_{t-1}\right)=\log \left(x_{t}\right)-\log \left(x_{t-1}\right) \approx r_{t}.
+\end{equation}
+
+- 时间序列所展示的性质与采样点的密集程度也密切相关.
+
+- 注意白噪声的定义只是不相关.
+
+- 信噪比signal-to-noise ratio (SNR): 振幅/噪声标准差.
+
+- If the random variables
+
+\begin{equation}
+U=\sum_{j=1}^{m} a_{j} X_{j} \quad \text { and } \quad V=\sum_{k=1}^{r} b_{k} Y_{k}
+\end{equation}
+
+are linear combinations of ( finite variance) random variables $\left\{X_{j}\right\}$ and $\left\{Y_{k}\right\},$ respectively, then
+
+\begin{equation}
+\operatorname{cov}(U, V)=\sum_{j=1}^{m} \sum_{k=1}^{r} a_{j} b_{k} \operatorname{cov}\left(X_{j}, Y_{k}\right).
+\end{equation}
+
+Furthermore, $\operatorname{var}(U)=\operatorname{cov}(U, U)$.
+
+- 严平稳并不要求二阶矩存在, 只有当二阶矩存在时严平稳才能得到弱平稳.
+
+- A linear process, $x_{t},$ is defined to be a linear combination of white noise variates $w_{t},$ and is given by
+
+\begin{equation}
+x_{t}=\mu+\sum_{j=-\infty}^{\infty} \psi_{j} w_{t-j}, \quad \sum_{j=-\infty}^{\infty}\left|\psi_{j}\right|<\infty
+\end{equation}
+
+For the linear process (see Problem 1.11), we may show that the autocovariance function is given by
+
+\begin{equation}
+\gamma_{x}(h)=\sigma_{w}^{2} \sum_{j=-\infty}^{\infty} \psi_{j+h} \psi_{j}
+\end{equation}
+
+## Time Series Regression and Exploratory Data Analysis
+
+- 首先是使用一般的回归, 注意可以考虑滞后项.
+
+- 平稳性是相当重要的, 因此当序列不平稳时可以采用去趋势(detrend)及差分(difference)的方法进行预处理. 如果是方差虽均值变化的序列可以考虑做$\log$变换. 理论上,我们将这类问题抽象成这种模型,即分布的标准差与其均值线性相关. 即 $\sqrt{\operatorname{Var}\left(Z_{t}\right)}=\mu_{t} \times \sigma,$其中$E\left(Z_{t}\right)=\mu_{t}$.
+由定义可推: $Z_{t}=\mu_{t}\left(1+\frac{Z_{t}-\mu_{t}}{\mu_{t}}\right)$, 利用log函数的性质:$\log (1+x) \approx x$ (当x足够小)
+那么$\log \left(Z_{t}\right) \approx \log \left(\mu_{t}\right)+\frac{Z_{t}-\mu_{t}}{\mu_{t}}$
+那么很容易就知道$E\left(\log \left(Z_{t}\right)\right) \approx \log \left(\mu_{t}\right)$和 $\operatorname{Var}\left(\log \left(Z_{t}\right)\right) \approx \sigma^{2}.$
+所以对数变换能够很好地将随着自变量的增加,因变量的方差也增大的模型转化为我们熟知的问题.
+
+- 还可以通过对$\cos$做回归来提取序列所蕴含的周期性的信息.
+
+- 可以用moving average来对序列进行平滑处理. 可以用一系列的方法确定系数: kernel, Lowess, Splines.
+
+## ARIMA Models
+
+- $AR(1)$的自协方差函数: 
+
+\begin{equation}
+\begin{aligned}
+\gamma(h) &=\operatorname{cov}\left(x_{t+h}, x_{t}\right)=\mathrm{E}\left[\left(\sum_{j=0}^{\infty} \phi^{j} w_{t+h-j}\right)\left(\sum_{k=0}^{\infty} \phi^{k} w_{t-k}\right)\right] \\
+&=\mathrm{E}\left[\left(w_{t+h}+\cdots+\phi^{h} w_{t}+\phi^{h+1} w_{t-1}+\cdots\right)\left(w_{t}+\phi w_{t-1}+\cdots\right)\right] \\
+&=\sigma_{w}^{2} \sum_{j=0}^{\infty} \phi^{h+j} \phi^{j}=\sigma_{w}^{2} \phi^{h} \sum_{j=0}^{\infty} \phi^{2 j}=\frac{\sigma_{w}^{2} \phi^{h}}{1-\phi^{2}}, \quad h \geq 0
+\end{aligned}
+\end{equation}
+
+The $\mathrm{ACF}$ of an $\mathrm{AR}(1)$ is
+
+\begin{equation}
+\rho(h)=\frac{\gamma(h)}{\gamma(0)}=\phi^{h}, \quad h \geq 0
+\end{equation}
+and $\rho(h)$ satisfies the recursion
+
+\begin{equation}
+\rho(h)=\phi \rho(h-1), \quad h=1,2, \ldots
+\end{equation}
+
+- We may treat the backshift operator, $B$, as a complex number, $z$.
+
+- MA(1): $\gamma(h)=\left\{\begin{array}{ll}\left(1+\theta^{2}\right) \sigma_{w}^{2} & h=0 \\ \theta \sigma_{w}^{2} & h=1 \\ 0 & h>1\end{array}\right.$

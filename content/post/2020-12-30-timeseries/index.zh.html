@@ -1,0 +1,91 @@
+---
+title: 时间序列期末复习
+author: Robby
+date: '2020-12-30'
+slug: timeseries
+categories:
+  - timeseries
+tags:
+  - timeseries
+hidden: no
+keywords: []
+description: ''
+---
+
+
+
+<p>以下内容基于Time Series Analysis and Its Applications-With R Examples.</p>
+<div id="characteristics-of-time-series" class="section level2">
+<h2>Characteristics of Time Series</h2>
+<ul>
+<li><p>时间序列的一大特征就是相依关系, 这区别于数理统计中的独立同分布的假设, 因此许多传统的方法不能直接使用.</p></li>
+<li><p>时间序列主要有分析方向——时域(time domain)以及频域 (frequency domain). 时域主要关心滞后关系 (lagged relationships), 而频域则关心周期性 (cycles).</p></li>
+<li><p>关于经济数据中return(<span class="math inline">\(r_{t}=(x_{t}-x_{t-1}) / x_{t-1}\)</span>)的近似:</p></li>
+</ul>
+<p><span class="math display">\[\begin{equation}
+1+r_{t}=x_{t} / x_{t-1} \text { and } \log \left(1+r_{t}\right)=\log \left(x_{t} / x_{t-1}\right)=\log \left(x_{t}\right)-\log \left(x_{t-1}\right) \approx r_{t}.
+\end{equation}\]</span></p>
+<ul>
+<li><p>时间序列所展示的性质与采样点的密集程度也密切相关.</p></li>
+<li><p>注意白噪声的定义只是不相关.</p></li>
+<li><p>信噪比signal-to-noise ratio (SNR): 振幅/噪声标准差.</p></li>
+<li><p>If the random variables</p></li>
+</ul>
+<p><span class="math display">\[\begin{equation}
+U=\sum_{j=1}^{m} a_{j} X_{j} \quad \text { and } \quad V=\sum_{k=1}^{r} b_{k} Y_{k}
+\end{equation}\]</span></p>
+<p>are linear combinations of ( finite variance) random variables <span class="math inline">\(\left\{X_{j}\right\}\)</span> and <span class="math inline">\(\left\{Y_{k}\right\},\)</span> respectively, then</p>
+<p><span class="math display">\[\begin{equation}
+\operatorname{cov}(U, V)=\sum_{j=1}^{m} \sum_{k=1}^{r} a_{j} b_{k} \operatorname{cov}\left(X_{j}, Y_{k}\right).
+\end{equation}\]</span></p>
+<p>Furthermore, <span class="math inline">\(\operatorname{var}(U)=\operatorname{cov}(U, U)\)</span>.</p>
+<ul>
+<li><p>严平稳并不要求二阶矩存在, 只有当二阶矩存在时严平稳才能得到弱平稳.</p></li>
+<li><p>A linear process, <span class="math inline">\(x_{t},\)</span> is defined to be a linear combination of white noise variates <span class="math inline">\(w_{t},\)</span> and is given by</p></li>
+</ul>
+<p><span class="math display">\[\begin{equation}
+x_{t}=\mu+\sum_{j=-\infty}^{\infty} \psi_{j} w_{t-j}, \quad \sum_{j=-\infty}^{\infty}\left|\psi_{j}\right|&lt;\infty
+\end{equation}\]</span></p>
+<p>For the linear process (see Problem 1.11), we may show that the autocovariance function is given by</p>
+<p><span class="math display">\[\begin{equation}
+\gamma_{x}(h)=\sigma_{w}^{2} \sum_{j=-\infty}^{\infty} \psi_{j+h} \psi_{j}
+\end{equation}\]</span></p>
+</div>
+<div id="time-series-regression-and-exploratory-data-analysis" class="section level2">
+<h2>Time Series Regression and Exploratory Data Analysis</h2>
+<ul>
+<li><p>首先是使用一般的回归, 注意可以考虑滞后项.</p></li>
+<li><p>平稳性是相当重要的, 因此当序列不平稳时可以采用去趋势(detrend)及差分(difference)的方法进行预处理. 如果是方差虽均值变化的序列可以考虑做<span class="math inline">\(\log\)</span>变换. 理论上,我们将这类问题抽象成这种模型,即分布的标准差与其均值线性相关. 即 <span class="math inline">\(\sqrt{\operatorname{Var}\left(Z_{t}\right)}=\mu_{t} \times \sigma,\)</span>其中<span class="math inline">\(E\left(Z_{t}\right)=\mu_{t}\)</span>.
+由定义可推: <span class="math inline">\(Z_{t}=\mu_{t}\left(1+\frac{Z_{t}-\mu_{t}}{\mu_{t}}\right)\)</span>, 利用log函数的性质:<span class="math inline">\(\log (1+x) \approx x\)</span> (当x足够小)
+那么<span class="math inline">\(\log \left(Z_{t}\right) \approx \log \left(\mu_{t}\right)+\frac{Z_{t}-\mu_{t}}{\mu_{t}}\)</span>
+那么很容易就知道<span class="math inline">\(E\left(\log \left(Z_{t}\right)\right) \approx \log \left(\mu_{t}\right)\)</span>和 <span class="math inline">\(\operatorname{Var}\left(\log \left(Z_{t}\right)\right) \approx \sigma^{2}.\)</span>
+所以对数变换能够很好地将随着自变量的增加,因变量的方差也增大的模型转化为我们熟知的问题.</p></li>
+<li><p>还可以通过对<span class="math inline">\(\cos\)</span>做回归来提取序列所蕴含的周期性的信息.</p></li>
+<li><p>可以用moving average来对序列进行平滑处理. 可以用一系列的方法确定系数: kernel, Lowess, Splines.</p></li>
+</ul>
+</div>
+<div id="arima-models" class="section level2">
+<h2>ARIMA Models</h2>
+<ul>
+<li><span class="math inline">\(AR(1)\)</span>的自协方差函数:</li>
+</ul>
+<p><span class="math display">\[\begin{equation}
+\begin{aligned}
+\gamma(h) &amp;=\operatorname{cov}\left(x_{t+h}, x_{t}\right)=\mathrm{E}\left[\left(\sum_{j=0}^{\infty} \phi^{j} w_{t+h-j}\right)\left(\sum_{k=0}^{\infty} \phi^{k} w_{t-k}\right)\right] \\
+&amp;=\mathrm{E}\left[\left(w_{t+h}+\cdots+\phi^{h} w_{t}+\phi^{h+1} w_{t-1}+\cdots\right)\left(w_{t}+\phi w_{t-1}+\cdots\right)\right] \\
+&amp;=\sigma_{w}^{2} \sum_{j=0}^{\infty} \phi^{h+j} \phi^{j}=\sigma_{w}^{2} \phi^{h} \sum_{j=0}^{\infty} \phi^{2 j}=\frac{\sigma_{w}^{2} \phi^{h}}{1-\phi^{2}}, \quad h \geq 0
+\end{aligned}
+\end{equation}\]</span></p>
+<p>The <span class="math inline">\(\mathrm{ACF}\)</span> of an <span class="math inline">\(\mathrm{AR}(1)\)</span> is</p>
+<p><span class="math display">\[\begin{equation}
+\rho(h)=\frac{\gamma(h)}{\gamma(0)}=\phi^{h}, \quad h \geq 0
+\end{equation}\]</span>
+and <span class="math inline">\(\rho(h)\)</span> satisfies the recursion</p>
+<p><span class="math display">\[\begin{equation}
+\rho(h)=\phi \rho(h-1), \quad h=1,2, \ldots
+\end{equation}\]</span></p>
+<ul>
+<li><p>We may treat the backshift operator, <span class="math inline">\(B\)</span>, as a complex number, <span class="math inline">\(z\)</span>.</p></li>
+<li><p>MA(1): <span class="math inline">\(\gamma(h)=\left\{\begin{array}{ll}\left(1+\theta^{2}\right) \sigma_{w}^{2} &amp; h=0 \\ \theta \sigma_{w}^{2} &amp; h=1 \\ 0 &amp; h&gt;1\end{array}\right.\)</span></p></li>
+</ul>
+</div>
