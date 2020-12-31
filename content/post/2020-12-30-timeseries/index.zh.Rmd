@@ -99,3 +99,5 @@ and $\rho(h)$ satisfies the recursion
 - We may treat the backshift operator, $B$, as a complex number, $z$.
 
 - MA(1): $\gamma(h)=\left\{\begin{array}{ll}\left(1+\theta^{2}\right) \sigma_{w}^{2} & h=0 \\ \theta \sigma_{w}^{2} & h=1 \\ 0 & h>1\end{array}\right.$
+\end{equation}
+
