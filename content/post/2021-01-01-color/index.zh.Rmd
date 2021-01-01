@@ -1,0 +1,17 @@
+---
+title: 数据可视化中的色彩
+author: Robby
+date: '2021-01-01'
+slug: color
+categories:
+  - Visualization
+tags:
+  - Visualization
+  - color
+hidden: no
+keywords: []
+description: ''
+---
+
+- “grey is the most important color in data vis”
+- For continuous data you use color gradients, and for categorical data you use distinctive colors.
